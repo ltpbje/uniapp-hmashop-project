@@ -65,6 +65,7 @@ const onSelectedAddress = (item: AddressItem) => {
                 class="edit"
                 hover-class="none"
                 @tap.stop="() => {}"
+                @tap.prevent="() => {}"
                 :url="`/pagesMember/address-form/address-form?id=${item.id}`"
               >
                 修改

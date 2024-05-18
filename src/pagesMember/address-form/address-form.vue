@@ -36,14 +36,28 @@ onLoad(() => {
 // 动态设置标题
 uni.setNavigationBarTitle({ title: query.id ? '修改地址' : '新增地址' })
 
+// #ifdef MP-WEIXIN
 // 收集所在地区
 const onRegionChange: UniHelper.RegionPickerOnChange = (ev) => {
   // 省市区前端展示
   form.value.fullLocation = ev.detail.value.join(' ')
   // 省市区后端参数
   const [provinceCode, cityCode, countyCode] = ev.detail.code!
+
   Object.assign(form.value, { countyCode, cityCode, provinceCode })
 }
+// #endif
+
+// #ifdef H5 ||APP-PlUS
+const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
+  // 省市区前端展示
+  form.value.fullLocation = ev.detail.value.join(' ')
+  //省市区（后端参数）
+  const [provinceCode, cityCode, countyCode] = ev.detail.value.map((v) => v.value)
+  //合并数据用于表单提交
+  Object.assign(form.value, { countyCode, cityCode, provinceCode })
+}
+// #endif
 
 // 收集是否默认收货地址
 const onSwitchChange: UniHelper.SwitchOnChange = (ev) => {
@@ -116,6 +130,9 @@ const onSubmit = async () => {
       </uni-forms-item>
       <uni-forms-item name="fullLocation" class="form-item">
         <text class="label">所在地区</text>
+
+        <!-- #ifdef MP-WEIXIN -->
+
         <picker
           @change="onRegionChange"
           class="picker"
@@ -125,6 +142,25 @@ const onSubmit = async () => {
           <view v-if="form.fullLocation">{{ form.fullLocation }}</view>
           <view v-else class="placeholder">请选择省/市/区(县)</view>
         </picker>
+
+        <!-- #endif -->
+        <!-- #ifdef H5||APP-PLUS -->
+
+        <uni-data-picker
+          placeholder="请选择地址"
+          popup-title="请选择城市"
+          collection="opendb-city-china"
+          field="code as value, name as text"
+          orderby="value asc"
+          :step-searh="true"
+          self-field="code"
+          parent-field="parent_code"
+          :clear-icon="false"
+          @change="onCityChange"
+          v-model="form.countyCode"
+        >
+        </uni-data-picker>
+        <!-- #endif -->
       </uni-forms-item>
       <uni-forms-item name="address" class="form-item">
         <text class="label">详细地址</text>
@@ -147,6 +183,13 @@ const onSubmit = async () => {
 </template>
 
 <style lang="scss">
+/* #ifdef H5 || APP-PlUS */
+:deep(.selected-area) {
+  height: auto;
+  flex: 0 1 auto;
+}
+
+/* #endif */
 page {
   background-color: #f4f4f4;
 }

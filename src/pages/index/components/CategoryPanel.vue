@@ -42,6 +42,7 @@ defineProps<{
       width: 100rpx;
       height: 100rpx;
     }
+
     .text {
       font-size: 26rpx;
       color: #666;
